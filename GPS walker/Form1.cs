@@ -215,7 +215,6 @@ namespace GPS_walker
                 if (stopwatch.ElapsedMilliseconds > timeToDestination.TotalMilliseconds)
                 {
                     stopwatch.Stop();
-                    txtETA.Text = string.Empty;
                 }
                 MoveStep();
             }
