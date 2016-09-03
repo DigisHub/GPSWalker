@@ -200,7 +200,16 @@ namespace GPS_walker
                 stepLatLng = Extender.Lerp(routePoints[routeStep - 1].Point, routePoints[routeStep].Point, distanceTraveled / routePoints[routeStep].CumulativeDistance);
             }
 
-            fakeGPS = Process.Start(System.Configuration.ConfigurationManager.AppSettings["adb"], string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", stepLatLng.Lat, stepLatLng.Lng));
+            ProcessStartInfo psi = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["adb"], string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", stepLatLng.Lat, stepLatLng.Lng))
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
+            fakeGPS = Process.Start(psi);
+            
             fakeGPS.EnableRaisingEvents = true;
             fakeGPS.Exited += FakeGPS_Exited;
         }
