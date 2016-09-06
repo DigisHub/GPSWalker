@@ -31,7 +31,7 @@ namespace GPS_walker
         GMarkerGoogle destinationMarker;
         MapRoute route;
         GMapRoute routeMarker;
-        bool gettingCurrentPosition;
+        bool gettingCurrentPosition, isRunning;
         PointLatLng currentLatLng, destinationLatLng, stepLatLng;
         int speed, sleepMin, sleepMax;
 
@@ -43,8 +43,7 @@ namespace GPS_walker
         List<RoutePoints> routePoints;
         double totalDistance;
         int routeStep;
-        CancellationTokenSource tokenSource;
-
+        
         private void Form1_Load(object sender, EventArgs e)
         {
             int.TryParse(System.Configuration.ConfigurationManager.AppSettings["stepSleepMinMilliseconds"], out sleepMin);
@@ -63,7 +62,6 @@ namespace GPS_walker
             map.Overlays.Add(markerOverlay);
             r = new Random();
             stopwatch = new Stopwatch();
-            tokenSource = new CancellationTokenSource();
 
             SaveValues s = SaveValues.ReadFromBinaryFile<SaveValues>("settings.ini");
             currentLatLng = s.Position;
@@ -170,21 +168,12 @@ namespace GPS_walker
                 routeStep = 0;
                 speedms = (double)speed * 1000 / 60 / 60; // km/h > m/h > m/m > m/s
                 timeToDestination = TimeSpan.FromSeconds(totalDistance / speedms);
-                if (stopwatch.IsRunning)
+                stopwatch = Stopwatch.StartNew();
+                if (!isRunning)
                 {
-                    stopwatch.Stop();
-                    tokenSource.Cancel();
-                    Task.Delay(sleepMax);
-                    tokenSource = new CancellationTokenSource();
-                    stopwatch = Stopwatch.StartNew();
-                    MoveStep();
-                }
-                else
-                {
-                    tokenSource = new CancellationTokenSource();
-                    stopwatch = Stopwatch.StartNew();
-                    Task.Delay(r.Next(sleepMin, sleepMax), tokenSource.Token).ContinueWith(t => MoveStep());
-                }
+                    isRunning = true;
+                    Task.Delay(r.Next(sleepMin, sleepMax)).ContinueWith(t => MoveStep());
+                }                
             }
         }
 
@@ -192,6 +181,7 @@ namespace GPS_walker
         {
             if (!stopwatch.IsRunning)
             {
+                isRunning = false;
                 return;
             }
 
@@ -221,7 +211,7 @@ namespace GPS_walker
         {
             currentLatLng = stepLatLng;
             SetCurrentPosition(); 
-            Task.Delay(r.Next(sleepMin, sleepMax), tokenSource.Token).ContinueWith(t => MoveStep());
+            Task.Delay(r.Next(sleepMin, sleepMax)).ContinueWith(t => MoveStep());
         }
 
         private void map_MouseDoubleClick(object sender, MouseEventArgs e)
