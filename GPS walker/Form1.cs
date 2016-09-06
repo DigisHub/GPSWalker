@@ -306,6 +306,7 @@ namespace GPS_walker
 
         private void btnGo_Click(object sender, EventArgs e)
         {
+            SetDestination();
             GoToDestination();
         }
 
