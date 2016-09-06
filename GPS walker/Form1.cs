@@ -113,6 +113,11 @@ namespace GPS_walker
             if (chkRoads.Checked)
             {
                 route = GMapProviders.OpenStreetMap.GetRoute(currentLatLng, destinationLatLng, false, false, 15);
+                if (route==null)
+                {
+                    MessageBox.Show("No route found");
+                    return;
+                }
                 routeMarker = new GMapRoute(route.Points, "My route");
                 routePoints.Add(new RoutePoints(currentLatLng));
                 foreach (var item in route.Points)
@@ -254,7 +259,7 @@ namespace GPS_walker
 
         private void txtDestination_Leave(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(txtPosition.Text) && ParseCoords(txtDestination.Text, ref destinationLatLng))
+            if (!string.IsNullOrEmpty(txtDestination.Text) && ParseCoords(txtDestination.Text, ref destinationLatLng))
             {
                 SetDestination();
             }
