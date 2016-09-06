@@ -15,6 +15,7 @@ using GMap.NET.WindowsForms.Markers;
 using System.Diagnostics;
 using System.IO;
 using System.Device.Location;
+using System.Threading;
 
 namespace GPS_walker
 {
@@ -31,7 +32,7 @@ namespace GPS_walker
         MapRoute route;
         GMapRoute routeMarker;
         bool gettingCurrentPosition;
-        PointLatLng currentLatLng, destinationLatLng, stepLatLng, originLatLng;
+        PointLatLng currentLatLng, destinationLatLng, stepLatLng;
         int speed, sleepMin, sleepMax;
 
         Process fakeGPS;
@@ -42,6 +43,7 @@ namespace GPS_walker
         List<RoutePoints> routePoints;
         double totalDistance;
         int routeStep;
+        CancellationTokenSource tokenSource;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -60,6 +62,8 @@ namespace GPS_walker
             markerOverlay.Markers.Add(currentPositionMarker);
             map.Overlays.Add(markerOverlay);
             r = new Random();
+            stopwatch = new Stopwatch();
+            tokenSource = new CancellationTokenSource();
 
             SaveValues s = SaveValues.ReadFromBinaryFile<SaveValues>("settings.ini");
             currentLatLng = s.Position;
@@ -87,43 +91,24 @@ namespace GPS_walker
 
         private void SetCurrentPosition()
         {
-            if (txtLat.InvokeRequired)
+            setText(txtLat, currentLatLng.Lat.ToString());
+            setText(txtLong, currentLatLng.Lng.ToString());
+            setText(txtETA, (timeToDestination - stopwatch.Elapsed).ToString(@"hh\:mm\:ss"));
+            currentPositionMarker.Position = currentLatLng;
+
+            if (chkFollow.Checked)
             {
-                Action actLat = () => txtLat.Text = currentLatLng.Lat.ToString();
-                txtLat.Invoke(actLat);
-
-                Action actLong = () => txtLong.Text = currentLatLng.Lng.ToString();
-                txtLong.Invoke(actLong);
-
-                currentPositionMarker.Position = currentLatLng;
-                if (chkFollow.Checked)
-                {
-                    Action actMap = () => map.Position = currentLatLng;
-                    map.Invoke(actMap);
-                }             
-                
-                Action actETA = () => txtETA.Text = (timeToDestination - stopwatch.Elapsed).ToString(@"hh\:mm\:ss");
-                txtETA.Invoke(actETA);
+                Action actMap = () => map.Position = currentLatLng;
+                map.Invoke(actMap);
             }
-            else
-            {
-                txtLat.Text = currentLatLng.Lat.ToString();
-                txtLong.Text = currentLatLng.Lng.ToString();
-                currentPositionMarker.Position = currentLatLng;
-                if (chkFollow.Checked)
-                {
-                    map.Position = currentLatLng;
-                }
-            }            
         }
 
         private void SetDestination()
-        {
+        {                    
             destinationMarker.Position = destinationLatLng;
             txtdestLat.Text = destinationLatLng.Lat.ToString();
             txtDestLong.Text = destinationLatLng.Lng.ToString();
             markerOverlay.Routes.Clear();
-            this.Refresh();
             routePoints = new List<RoutePoints>();
             if (chkRoads.Checked)
             {
@@ -145,6 +130,13 @@ namespace GPS_walker
                 routePoints.Add(new RoutePoints(currentLatLng));
                 routePoints.Add(new RoutePoints(destinationLatLng, totalDistance));
             }
+            if (speed > 0)
+            {
+                speedms = (double)speed * 1000 / 60 / 60; // km/h > m/h > m/m > m/s
+                timeToDestination = TimeSpan.FromSeconds(totalDistance / speedms);
+                setText(txtETA, timeToDestination.ToString(@"hh\:mm\:ss"));
+            }
+            this.Refresh();
             if (chkGo.Checked)
             {
                 GoToDestination();
@@ -163,28 +155,45 @@ namespace GPS_walker
         {            
             if (speed == 0)
             {
-                Process p;
-                p = Process.Start(System.Configuration.ConfigurationManager.AppSettings["adb"], string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", destinationLatLng.Lat, destinationLatLng.Lng));
-                p.WaitForExit();
+                adb(destinationLatLng);
                 currentLatLng = destinationLatLng;
                 SetCurrentPosition();
             }
             else
             {
+                
                 routeStep = 0;
                 speedms = (double)speed * 1000 / 60 / 60; // km/h > m/h > m/m > m/s
                 timeToDestination = TimeSpan.FromSeconds(totalDistance / speedms);
-                originLatLng = currentLatLng;
-                stopwatch = Stopwatch.StartNew();
-                MoveStep();
+                if (stopwatch.IsRunning)
+                {
+                    stopwatch.Stop();
+                    tokenSource.Cancel();
+                    Task.Delay(sleepMax);
+                    tokenSource = new CancellationTokenSource();
+                    stopwatch = Stopwatch.StartNew();
+                    MoveStep();
+                }
+                else
+                {
+                    tokenSource = new CancellationTokenSource();
+                    stopwatch = Stopwatch.StartNew();
+                    Task.Delay(r.Next(sleepMin, sleepMax), tokenSource.Token).ContinueWith(t => MoveStep());
+                }
             }
         }
 
         private void MoveStep()
         {
+            if (!stopwatch.IsRunning)
+            {
+                return;
+            }
+
             if (stopwatch.ElapsedMilliseconds > timeToDestination.TotalMilliseconds)
             {
                 stepLatLng = destinationLatLng;
+                stopwatch.Stop();
             }
             else
             {
@@ -199,34 +208,15 @@ namespace GPS_walker
                 }
                 stepLatLng = Extender.Lerp(routePoints[routeStep - 1].Point, routePoints[routeStep].Point, distanceTraveled / routePoints[routeStep].CumulativeDistance);
             }
-
-            ProcessStartInfo psi = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["adb"], string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", stepLatLng.Lat, stepLatLng.Lng))
-            {
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            };
-
-            fakeGPS = Process.Start(psi);
             
-            fakeGPS.EnableRaisingEvents = true;
-            fakeGPS.Exited += FakeGPS_Exited;
+            adb(stepLatLng, true);
         }
 
         private void FakeGPS_Exited(object sender, EventArgs e)
         {
             currentLatLng = stepLatLng;
-            SetCurrentPosition();
-            if (stopwatch.IsRunning)
-            {                
-                System.Threading.Thread.Sleep(r.Next(sleepMin, sleepMax));
-                if (stopwatch.ElapsedMilliseconds > timeToDestination.TotalMilliseconds)
-                {
-                    stopwatch.Stop();
-                }
-                MoveStep();
-            }
+            SetCurrentPosition(); 
+            Task.Delay(r.Next(sleepMin, sleepMax), tokenSource.Token).ContinueWith(t => MoveStep());
         }
 
         private void map_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -250,12 +240,12 @@ namespace GPS_walker
 
         private void btnAdbConnect_Click(object sender, EventArgs e)
         {
-            Process.Start(System.Configuration.ConfigurationManager.AppSettings["adb"], string.Format(" connect {0}:5555", txtIP.Text));
+            adb(string.Format(" connect {0}:5555", txtIP.Text), false);
         }
 
         private void txtPosition_Leave(object sender, EventArgs e)
         {
-            if (ParseCoords(txtPosition.Text, ref currentLatLng))
+            if (!string.IsNullOrEmpty(txtPosition.Text) && ParseCoords(txtPosition.Text, ref currentLatLng))
             {
                 SetCurrentPosition();
             }
@@ -264,7 +254,7 @@ namespace GPS_walker
 
         private void txtDestination_Leave(object sender, EventArgs e)
         {
-            if (ParseCoords(txtDestination.Text, ref destinationLatLng))
+            if (!string.IsNullOrEmpty(txtPosition.Text) && ParseCoords(txtDestination.Text, ref destinationLatLng))
             {
                 SetDestination();
             }
@@ -298,8 +288,6 @@ namespace GPS_walker
         private void btnStop_Click(object sender, EventArgs e)
         {
             stopwatch.Stop();
-            fakeGPS.EnableRaisingEvents = true;
-            fakeGPS.Exited -= FakeGPS_Exited;
             txtETA.Text = string.Empty;
         }
 
@@ -320,6 +308,58 @@ namespace GPS_walker
         {
             txtLat.Text = string.Empty;
             txtLong.Text = string.Empty;
+        }
+
+        private void adb(string command, bool withEvent)
+        {
+            setText(txtAdbResult, string.Format("[{0}]: {1}{2}{3}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), "adb.exe", command, "\r\n"));
+            if (this.InvokeRequired)
+            {
+                Action a = () => this.Refresh();
+                this.Invoke(a);
+            }
+
+            fakeGPS = new Process();
+            ProcessStartInfo psi = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["adb"], command)
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+            };
+            fakeGPS.StartInfo = psi;
+            if (withEvent)
+            {
+                fakeGPS.EnableRaisingEvents = true;
+                fakeGPS.Exited += FakeGPS_Exited;
+            }
+            fakeGPS.Start();
+            var output = fakeGPS.StandardOutput.ReadToEndAsync();
+            fakeGPS.WaitForExit();
+            setText(txtAdbResult, string.Format("{3}[{0}]: {1}{2}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), output.Result, "\r\n", txtAdbResult.Text));
+        }
+
+        void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            setText(txtAdbResult, string.Format("{3}[{0}]: {1}{2}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), outLine.Data, "\r\n", txtAdbResult.Text));
+        }
+
+        private void adb(PointLatLng coords, bool withEvent = false)
+        {
+           adb(string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", coords.Lat, coords.Lng), withEvent);
+        }
+
+        private void setText(TextBox txt, string text)
+        {
+            if (txt.InvokeRequired)
+            {
+                Action act = () => txt.Text = text;
+                txt.Invoke(act);
+            }
+            else
+            {
+                txt.Text = text;
+            }
         }
     }
 }

@@ -51,14 +51,15 @@
             this.chkGo = new System.Windows.Forms.CheckBox();
             this.btnGo = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txtETA = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.btnStop = new System.Windows.Forms.Button();
             this.txtPosition = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.txtSpeed = new System.Windows.Forms.TextBox();
-            this.btnStop = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.txtETA = new System.Windows.Forms.TextBox();
+            this.txtAdbResult = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -315,6 +316,33 @@
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             // 
+            // txtETA
+            // 
+            this.txtETA.Location = new System.Drawing.Point(55, 677);
+            this.txtETA.Name = "txtETA";
+            this.txtETA.ReadOnly = true;
+            this.txtETA.Size = new System.Drawing.Size(100, 20);
+            this.txtETA.TabIndex = 33;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(17, 680);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(31, 13);
+            this.label13.TabIndex = 32;
+            this.label13.Text = "ETA:";
+            // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(67, 640);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStop.TabIndex = 31;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
             // txtPosition
             // 
             this.txtPosition.Location = new System.Drawing.Point(51, 122);
@@ -359,38 +387,22 @@
             this.txtSpeed.Text = "0";
             this.txtSpeed.TextChanged += new System.EventHandler(this.txtSpeed_TextChanged);
             // 
-            // btnStop
+            // txtAdbResult
             // 
-            this.btnStop.Location = new System.Drawing.Point(67, 640);
-            this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(75, 23);
-            this.btnStop.TabIndex = 31;
-            this.btnStop.Text = "Stop";
-            this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(17, 680);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(31, 13);
-            this.label13.TabIndex = 32;
-            this.label13.Text = "ETA:";
-            // 
-            // txtETA
-            // 
-            this.txtETA.Location = new System.Drawing.Point(55, 677);
-            this.txtETA.Name = "txtETA";
-            this.txtETA.ReadOnly = true;
-            this.txtETA.Size = new System.Drawing.Size(100, 20);
-            this.txtETA.TabIndex = 33;
+            this.txtAdbResult.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.txtAdbResult.Location = new System.Drawing.Point(0, 676);
+            this.txtAdbResult.Multiline = true;
+            this.txtAdbResult.Name = "txtAdbResult";
+            this.txtAdbResult.ReadOnly = true;
+            this.txtAdbResult.Size = new System.Drawing.Size(816, 46);
+            this.txtAdbResult.TabIndex = 8;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1016, 722);
+            this.Controls.Add(this.txtAdbResult);
             this.Controls.Add(this.map);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
@@ -400,6 +412,7 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -436,6 +449,7 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.TextBox txtETA;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtAdbResult;
     }
 }
 
