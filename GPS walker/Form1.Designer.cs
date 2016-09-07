@@ -60,6 +60,9 @@
             this.label10 = new System.Windows.Forms.Label();
             this.txtSpeed = new System.Windows.Forms.TextBox();
             this.txtAdbResult = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.txtJitter = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -280,13 +283,16 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label14);
             this.groupBox1.Controls.Add(this.txtETA);
             this.groupBox1.Controls.Add(this.label13);
             this.groupBox1.Controls.Add(this.btnStop);
             this.groupBox1.Controls.Add(this.txtPosition);
             this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.label15);
             this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.txtJitter);
             this.groupBox1.Controls.Add(this.txtSpeed);
             this.groupBox1.Controls.Add(this.btnGo);
             this.groupBox1.Controls.Add(this.chkGo);
@@ -397,6 +403,33 @@
             this.txtAdbResult.Size = new System.Drawing.Size(816, 46);
             this.txtAdbResult.TabIndex = 8;
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(22, 445);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(29, 13);
+            this.label14.TabIndex = 34;
+            this.label14.Text = "Jitter";
+            // 
+            // txtJitter
+            // 
+            this.txtJitter.Location = new System.Drawing.Point(66, 442);
+            this.txtJitter.Name = "txtJitter";
+            this.txtJitter.Size = new System.Drawing.Size(61, 20);
+            this.txtJitter.TabIndex = 26;
+            this.txtJitter.Text = "0";
+            this.txtJitter.TextChanged += new System.EventHandler(this.txtJitter_TextChanged);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(136, 445);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(15, 13);
+            this.label15.TabIndex = 27;
+            this.label15.Text = "m";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -450,6 +483,9 @@
         private System.Windows.Forms.TextBox txtETA;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox txtAdbResult;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtJitter;
     }
 }
 

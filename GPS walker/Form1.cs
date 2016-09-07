@@ -33,7 +33,7 @@ namespace GPS_walker
         GMapRoute routeMarker;
         bool gettingCurrentPosition, isRunning;
         PointLatLng currentLatLng, destinationLatLng, stepLatLng;
-        int speed, sleepMin, sleepMax;
+        int speed, sleepMin, sleepMax, jitter;
 
         Process fakeGPS;
         double speedms;
@@ -71,6 +71,8 @@ namespace GPS_walker
             chkFollow.Checked = s.FollowPostion;
             speed = s.Speed;
             txtSpeed.Text = speed.ToString();
+            jitter = s.Jitter;
+            txtJitter.Text = jitter.ToString();
             if (s.Zoom > 0)
             {
                 map.Zoom = s.Zoom;
@@ -289,8 +291,17 @@ namespace GPS_walker
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             //Save current status
-            SaveValues s = new SaveValues { IP = txtIP.Text, Position = currentLatLng, FollowPostion = chkFollow.Checked,
-                GoAutomatically = chkGo.Checked, UseRoads = chkRoads.Checked, Speed = speed, Zoom = map.Zoom };
+            SaveValues s = new SaveValues
+            {
+                IP = txtIP.Text,
+                Position = currentLatLng,
+                FollowPostion = chkFollow.Checked,
+                GoAutomatically = chkGo.Checked,
+                UseRoads = chkRoads.Checked,
+                Speed = speed,
+                Zoom = map.Zoom,
+                Jitter = jitter
+            };
             SaveValues.WriteToBinaryFile<SaveValues>("settings.ini", s, false);
         }
 
@@ -298,6 +309,14 @@ namespace GPS_walker
         {
             SetDestination();
             GoToDestination();
+        }
+
+        private void txtJitter_TextChanged(object sender, EventArgs e)
+        {
+            if (!int.TryParse(txtJitter.Text, out jitter))
+            {
+                txtJitter.Text = jitter.ToString();
+            }
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -342,7 +361,12 @@ namespace GPS_walker
 
         private void adb(PointLatLng coords, bool withEvent = false)
         {
-           adb(string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", coords.Lat, coords.Lng), withEvent);
+            //0.00001 decimal degrees ~= 1.11m
+            double offset = r.NextDouble() * jitter * 0.00001 * (r.NextDouble() > 0.5 ? -1 : 1);
+            coords.Lat += offset;
+            coords.Lng += offset;
+
+            adb(string.Format(" shell am startservice -a com.incorporateapps.fakegps.ENGAGE --ef lat {0} --ef lng {1}", coords.Lat, coords.Lng), withEvent);
         }
 
         private void setText(TextBox txt, string text)

@@ -18,6 +18,7 @@ namespace GPS_walker
         public bool GoAutomatically { get; set; }
         public int Speed { get; set; }
         public double Zoom { get; set; }
+        public int Jitter { get; set; }
 
         /// <summary>
         /// Writes the given object instance to a binary file.
