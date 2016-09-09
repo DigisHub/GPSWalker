@@ -35,7 +35,7 @@ namespace GPS_walker
         PointLatLng currentLatLng, destinationLatLng, stepLatLng;
         int speed, sleepMin, sleepMax, jitter;
 
-        Process fakeGPS;
+        Process fakeGPS, PokeGet;
         double speedms;
         TimeSpan timeToDestination;
         Stopwatch stopwatch;
@@ -43,6 +43,10 @@ namespace GPS_walker
         List<RoutePoints> routePoints;
         double totalDistance;
         int routeStep;
+
+        List<SavedRoute> savedRoute;
+        bool onRoute = false;
+        int savedRouteIndex;
         
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -62,6 +66,7 @@ namespace GPS_walker
             map.Overlays.Add(markerOverlay);
             r = new Random();
             stopwatch = new Stopwatch();
+            savedRoute = new List<SavedRoute>();
 
             SaveValues s = SaveValues.ReadFromBinaryFile<SaveValues>("settings.ini");
             currentLatLng = s.Position;
@@ -80,8 +85,18 @@ namespace GPS_walker
 
             map.Position = currentLatLng;
             SetCurrentPosition();
+
+            LoadRoutes();
         }
 
+        private void LoadRoutes()
+        {            
+            string[] routes = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.csv");
+            foreach (string route in routes)
+            {
+                cmbRoutes.Items.Add(Path.GetFileName(route));
+            }
+        }
 
         private void btnSetPosition_Click(object sender, EventArgs e)
         {
@@ -106,8 +121,8 @@ namespace GPS_walker
         private void SetDestination()
         {                    
             destinationMarker.Position = destinationLatLng;
-            txtdestLat.Text = destinationLatLng.Lat.ToString();
-            txtDestLong.Text = destinationLatLng.Lng.ToString();
+            setText(txtdestLat, destinationLatLng.Lat.ToString());
+            setText(txtDestLong, destinationLatLng.Lng.ToString());
             markerOverlay.Routes.Clear();
             routePoints = new List<RoutePoints>();
             if (chkRoads.Checked)
@@ -141,7 +156,8 @@ namespace GPS_walker
                 timeToDestination = TimeSpan.FromSeconds(totalDistance / speedms);
                 setText(txtETA, timeToDestination.ToString(@"hh\:mm\:ss"));
             }
-            this.Refresh();
+            Action r = () => this.Refresh();
+            this.Invoke(r);
             if (chkGo.Checked)
             {
                 GoToDestination();
@@ -184,6 +200,10 @@ namespace GPS_walker
             if (!stopwatch.IsRunning)
             {
                 isRunning = false;
+                if (onRoute)
+                {
+                    EndRoutePoint();
+                }
                 return;
             }
 
@@ -311,6 +331,160 @@ namespace GPS_walker
             GoToDestination();
         }
 
+        private void cmbRoutes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lstSavedRoute.Items.Clear();
+            savedRoute.Clear();
+
+            string[] routeFile = File.ReadAllLines(cmbRoutes.SelectedItem.ToString());
+            //Name, Lat, Lng, Pokestop, UseRoads, Speed, Jitter
+            for (int i = 1; i < routeFile.Length; i++)
+            {
+                var line = routeFile[i].Split(',');
+
+                try
+                {
+                    PointLatLng p = PointLatLng.Empty;
+
+                    ParseCoords(string.Format("{0},{1}", line[1], line[2]), ref p);
+                    SavedRoute sr = new SavedRoute
+                    {
+                        Name = line[0],
+                        Location = p,
+                        PokeStop = bool.Parse(line[3]),
+                        UseRoads = bool.Parse(line[4]),
+                        Speed = int.Parse(line[5]),
+                        Jitter = int.Parse(line[6])
+                    };
+                    savedRoute.Add(sr);
+                }
+                catch
+                {
+                }
+            }
+
+            savedRoute.ForEach(a => lstSavedRoute.Items.Add(a.ToString()));
+
+        }
+
+        private void btnRoute_Click(object sender, EventArgs e)
+        {
+            if (savedRoute.Count == 0)
+            {
+                MessageBox.Show("No Route selected");
+                return;
+            }
+
+            onRoute = true;
+            if (lstSavedRoute.SelectedIndex == -1)
+            {
+                lstSavedRoute.SelectedIndex = 0;
+                savedRouteIndex = 0;
+            }
+            StartRoute();
+        }
+
+        private void StartRoute()
+        {
+            //load values from route into current destination
+            destinationLatLng = savedRoute[savedRouteIndex].Location;
+            speed = savedRoute[savedRouteIndex].Speed;
+            setText(txtSpeed, speed.ToString());
+            jitter = savedRoute[savedRouteIndex].Jitter;
+            setText(txtJitter, jitter.ToString());
+            if (chkRoads.InvokeRequired)
+            {
+                Action a = () => chkRoads.Checked = savedRoute[savedRouteIndex].UseRoads;
+                chkRoads.Invoke(a);
+            }
+            else
+            {
+                chkRoads.Checked = savedRoute[savedRouteIndex].UseRoads;
+            }            
+            SetDestination();
+            GoToDestination();
+        }
+
+        private void EndRoutePoint()
+        {
+            if (savedRoute[savedRouteIndex].PokeStop)
+            {
+                //Get Pokestop
+                setText(txtAdbResult, string.Format("[{0}]: Getting pokestop {1}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), savedRoute[savedRouteIndex].Name));
+                if (this.InvokeRequired)
+                {
+                    Action a = () => this.Refresh();
+                    this.Invoke(a);
+                }
+
+                PokeGet = new Process();
+                ProcessStartInfo psi = new ProcessStartInfo(System.Configuration.ConfigurationManager.AppSettings["pokeget"], string.Format(" {0} {1}", savedRoute[savedRouteIndex].Location.Lat, savedRoute[savedRouteIndex].Location.Lng))
+                {
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    WorkingDirectory = Path.GetDirectoryName(System.Configuration.ConfigurationManager.AppSettings["pokeget"])
+                };
+                PokeGet.StartInfo = psi;
+
+                PokeGet.EnableRaisingEvents = true;
+                PokeGet.Exited += PokeGet_Exited;
+
+                PokeGet.Start();
+                var output = fakeGPS.StandardOutput.ReadToEndAsync();
+                PokeGet.WaitForExit();
+                Action actResult = () => txtAdbResult.AppendText(string.Format("[{0}]: {1}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), output.Result));
+                txtAdbResult.Invoke(actResult);
+            }
+            else
+            {
+                NextRouteStep();
+            }
+        }
+
+        private void PokeGet_Exited(object sender, EventArgs e)
+        {
+            NextRouteStep();
+        }
+
+        private void NextRouteStep()
+        {
+            if (savedRouteIndex == savedRoute.Count - 1)
+            {
+                savedRouteIndex = 0;
+            }
+            else
+            {
+                savedRouteIndex++;
+            }
+
+            if (lstSavedRoute.InvokeRequired)
+            {
+                Action a = () => lstSavedRoute.SelectedIndex = savedRouteIndex;
+                lstSavedRoute.Invoke(a);
+            }
+            else
+            {
+                lstSavedRoute.SelectedIndex = savedRouteIndex;
+            }
+
+            StartRoute();
+        }
+
+        private void lstSavedRoute_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            savedRouteIndex = lstSavedRoute.SelectedIndex;
+        }
+
+        private void btnStopRoute_Click(object sender, EventArgs e)
+        {
+            onRoute = false;
+            lstSavedRoute.SelectedIndex = -1;
+            savedRouteIndex = 0;
+            btnStop_Click(sender, e);
+        }
+
         private void txtJitter_TextChanged(object sender, EventArgs e)
         {
             if (!int.TryParse(txtJitter.Text, out jitter))
@@ -351,7 +525,9 @@ namespace GPS_walker
             fakeGPS.Start();
             var output = fakeGPS.StandardOutput.ReadToEndAsync();
             fakeGPS.WaitForExit();
-            setText(txtAdbResult, string.Format("{3}[{0}]: {1}{2}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), output.Result, "\r\n", txtAdbResult.Text));
+            Action actResult = () => txtAdbResult.AppendText(string.Format("[{0}]: {1}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), output.Result));
+            txtAdbResult.Invoke(actResult);
+            //setText(txtAdbResult, string.Format("{3}[{0}]: {1}{2}", DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss"), output.Result, "\r\n", txtAdbResult.Text));
         }
 
         void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
@@ -362,7 +538,7 @@ namespace GPS_walker
         private void adb(PointLatLng coords, bool withEvent = false)
         {
             //0.00001 decimal degrees ~= 1.11m
-            double offset = r.NextDouble() * jitter * 0.00001 * (r.NextDouble() > 0.5 ? -1 : 1);
+            double offset = r.NextDouble() * jitter * 0.00001  / 1.11 * (r.NextDouble() > 0.5 ? -1 : 1);
             coords.Lat += offset;
             coords.Lng += offset;
 
