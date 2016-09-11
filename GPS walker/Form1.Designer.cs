@@ -51,6 +51,11 @@
             this.chkGo = new System.Windows.Forms.CheckBox();
             this.btnGo = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnStopRoute = new System.Windows.Forms.Button();
+            this.btnRoute = new System.Windows.Forms.Button();
+            this.lstSavedRoute = new System.Windows.Forms.ListBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.cmbRoutes = new System.Windows.Forms.ComboBox();
             this.label14 = new System.Windows.Forms.Label();
             this.txtETA = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -63,11 +68,6 @@
             this.txtJitter = new System.Windows.Forms.TextBox();
             this.txtSpeed = new System.Windows.Forms.TextBox();
             this.txtAdbResult = new System.Windows.Forms.TextBox();
-            this.cmbRoutes = new System.Windows.Forms.ComboBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.lstSavedRoute = new System.Windows.Forms.ListBox();
-            this.btnRoute = new System.Windows.Forms.Button();
-            this.btnStopRoute = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -93,14 +93,14 @@
             this.map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.map.ShowTileGridLines = false;
-            this.map.Size = new System.Drawing.Size(816, 812);
+            this.map.Size = new System.Drawing.Size(816, 696);
             this.map.TabIndex = 0;
             this.map.Zoom = 13D;
             this.map.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.map_MouseDoubleClick);
             // 
             // btnSetPosition
             // 
-            this.btnSetPosition.Location = new System.Drawing.Point(71, 189);
+            this.btnSetPosition.Location = new System.Drawing.Point(71, 183);
             this.btnSetPosition.Name = "btnSetPosition";
             this.btnSetPosition.Size = new System.Drawing.Size(75, 23);
             this.btnSetPosition.TabIndex = 1;
@@ -110,7 +110,7 @@
             // 
             // txtLat
             // 
-            this.txtLat.Location = new System.Drawing.Point(51, 140);
+            this.txtLat.Location = new System.Drawing.Point(51, 134);
             this.txtLat.Name = "txtLat";
             this.txtLat.ReadOnly = true;
             this.txtLat.Size = new System.Drawing.Size(100, 20);
@@ -119,7 +119,7 @@
             // chkFollow
             // 
             this.chkFollow.AutoSize = true;
-            this.chkFollow.Location = new System.Drawing.Point(45, 222);
+            this.chkFollow.Location = new System.Drawing.Point(45, 216);
             this.chkFollow.Name = "chkFollow";
             this.chkFollow.Size = new System.Drawing.Size(96, 17);
             this.chkFollow.TabIndex = 3;
@@ -128,7 +128,7 @@
             // 
             // txtLong
             // 
-            this.txtLong.Location = new System.Drawing.Point(51, 162);
+            this.txtLong.Location = new System.Drawing.Point(51, 156);
             this.txtLong.Name = "txtLong";
             this.txtLong.ReadOnly = true;
             this.txtLong.Size = new System.Drawing.Size(100, 20);
@@ -137,7 +137,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(14, 165);
+            this.label3.Location = new System.Drawing.Point(14, 159);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(30, 13);
             this.label3.TabIndex = 4;
@@ -146,7 +146,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(14, 140);
+            this.label2.Location = new System.Drawing.Point(14, 134);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(21, 13);
             this.label2.TabIndex = 3;
@@ -155,7 +155,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(48, 90);
+            this.label1.Location = new System.Drawing.Point(48, 84);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 13);
             this.label1.TabIndex = 2;
@@ -190,7 +190,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(68, 272);
+            this.label5.Location = new System.Drawing.Point(68, 243);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(60, 13);
             this.label5.TabIndex = 10;
@@ -199,7 +199,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(17, 301);
+            this.label6.Location = new System.Drawing.Point(17, 267);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(43, 13);
             this.label6.TabIndex = 11;
@@ -207,7 +207,7 @@
             // 
             // txtDestination
             // 
-            this.txtDestination.Location = new System.Drawing.Point(67, 301);
+            this.txtDestination.Location = new System.Drawing.Point(67, 267);
             this.txtDestination.Name = "txtDestination";
             this.txtDestination.Size = new System.Drawing.Size(100, 20);
             this.txtDestination.TabIndex = 12;
@@ -215,7 +215,7 @@
             // 
             // txtdestLat
             // 
-            this.txtdestLat.Location = new System.Drawing.Point(67, 337);
+            this.txtdestLat.Location = new System.Drawing.Point(67, 293);
             this.txtdestLat.Name = "txtdestLat";
             this.txtdestLat.ReadOnly = true;
             this.txtdestLat.Size = new System.Drawing.Size(100, 20);
@@ -223,7 +223,7 @@
             // 
             // txtDestLong
             // 
-            this.txtDestLong.Location = new System.Drawing.Point(67, 359);
+            this.txtDestLong.Location = new System.Drawing.Point(67, 315);
             this.txtDestLong.Name = "txtDestLong";
             this.txtDestLong.ReadOnly = true;
             this.txtDestLong.Size = new System.Drawing.Size(100, 20);
@@ -232,7 +232,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(30, 362);
+            this.label8.Location = new System.Drawing.Point(30, 318);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(30, 13);
             this.label8.TabIndex = 15;
@@ -241,7 +241,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(30, 337);
+            this.label7.Location = new System.Drawing.Point(30, 293);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(21, 13);
             this.label7.TabIndex = 14;
@@ -250,7 +250,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(22, 426);
+            this.label9.Location = new System.Drawing.Point(22, 371);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(38, 13);
             this.label9.TabIndex = 22;
@@ -259,7 +259,7 @@
             // chkRoads
             // 
             this.chkRoads.AutoSize = true;
-            this.chkRoads.Location = new System.Drawing.Point(45, 489);
+            this.chkRoads.Location = new System.Drawing.Point(45, 417);
             this.chkRoads.Name = "chkRoads";
             this.chkRoads.Size = new System.Drawing.Size(116, 17);
             this.chkRoads.TabIndex = 23;
@@ -269,7 +269,7 @@
             // chkGo
             // 
             this.chkGo.AutoSize = true;
-            this.chkGo.Location = new System.Drawing.Point(45, 513);
+            this.chkGo.Location = new System.Drawing.Point(45, 441);
             this.chkGo.Name = "chkGo";
             this.chkGo.Size = new System.Drawing.Size(104, 17);
             this.chkGo.TabIndex = 24;
@@ -278,7 +278,7 @@
             // 
             // btnGo
             // 
-            this.btnGo.Location = new System.Drawing.Point(102, 548);
+            this.btnGo.Location = new System.Drawing.Point(102, 465);
             this.btnGo.Name = "btnGo";
             this.btnGo.Size = new System.Drawing.Size(75, 23);
             this.btnGo.TabIndex = 25;
@@ -328,14 +328,61 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Right;
             this.groupBox1.Location = new System.Drawing.Point(816, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 812);
+            this.groupBox1.Size = new System.Drawing.Size(200, 696);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
+            // 
+            // btnStopRoute
+            // 
+            this.btnStopRoute.Location = new System.Drawing.Point(21, 662);
+            this.btnStopRoute.Name = "btnStopRoute";
+            this.btnStopRoute.Size = new System.Drawing.Size(75, 23);
+            this.btnStopRoute.TabIndex = 39;
+            this.btnStopRoute.Text = "Stop Route";
+            this.btnStopRoute.UseVisualStyleBackColor = true;
+            this.btnStopRoute.Click += new System.EventHandler(this.btnStopRoute_Click);
+            // 
+            // btnRoute
+            // 
+            this.btnRoute.Location = new System.Drawing.Point(102, 662);
+            this.btnRoute.Name = "btnRoute";
+            this.btnRoute.Size = new System.Drawing.Size(75, 23);
+            this.btnRoute.TabIndex = 38;
+            this.btnRoute.Text = "Start Route";
+            this.btnRoute.UseVisualStyleBackColor = true;
+            this.btnRoute.Click += new System.EventHandler(this.btnRoute_Click);
+            // 
+            // lstSavedRoute
+            // 
+            this.lstSavedRoute.FormattingEnabled = true;
+            this.lstSavedRoute.Location = new System.Drawing.Point(20, 555);
+            this.lstSavedRoute.Name = "lstSavedRoute";
+            this.lstSavedRoute.Size = new System.Drawing.Size(157, 95);
+            this.lstSavedRoute.TabIndex = 37;
+            this.lstSavedRoute.SelectedIndexChanged += new System.EventHandler(this.lstSavedRoute_SelectedIndexChanged);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 528);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(39, 13);
+            this.label16.TabIndex = 36;
+            this.label16.Text = "Route:";
+            // 
+            // cmbRoutes
+            // 
+            this.cmbRoutes.FormattingEnabled = true;
+            this.cmbRoutes.Location = new System.Drawing.Point(55, 525);
+            this.cmbRoutes.Name = "cmbRoutes";
+            this.cmbRoutes.Size = new System.Drawing.Size(121, 21);
+            this.cmbRoutes.TabIndex = 35;
+            this.cmbRoutes.SelectedIndexChanged += new System.EventHandler(this.cmbRoutes_SelectedIndexChanged);
             // 
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(22, 400);
+            this.label14.Location = new System.Drawing.Point(22, 345);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(29, 13);
             this.label14.TabIndex = 34;
@@ -343,7 +390,7 @@
             // 
             // txtETA
             // 
-            this.txtETA.Location = new System.Drawing.Point(64, 582);
+            this.txtETA.Location = new System.Drawing.Point(64, 499);
             this.txtETA.Name = "txtETA";
             this.txtETA.ReadOnly = true;
             this.txtETA.Size = new System.Drawing.Size(100, 20);
@@ -352,7 +399,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(26, 585);
+            this.label13.Location = new System.Drawing.Point(26, 502);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(31, 13);
             this.label13.TabIndex = 32;
@@ -360,7 +407,7 @@
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(21, 548);
+            this.btnStop.Location = new System.Drawing.Point(21, 465);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
             this.btnStop.TabIndex = 31;
@@ -370,7 +417,7 @@
             // 
             // txtPosition
             // 
-            this.txtPosition.Location = new System.Drawing.Point(51, 114);
+            this.txtPosition.Location = new System.Drawing.Point(51, 108);
             this.txtPosition.Name = "txtPosition";
             this.txtPosition.Size = new System.Drawing.Size(100, 20);
             this.txtPosition.TabIndex = 30;
@@ -379,7 +426,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(1, 114);
+            this.label12.Location = new System.Drawing.Point(1, 108);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(43, 13);
             this.label12.TabIndex = 29;
@@ -388,7 +435,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(45, 452);
+            this.label11.Location = new System.Drawing.Point(45, 397);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(93, 13);
             this.label11.TabIndex = 28;
@@ -397,7 +444,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(136, 400);
+            this.label15.Location = new System.Drawing.Point(136, 345);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(15, 13);
             this.label15.TabIndex = 27;
@@ -406,7 +453,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(135, 426);
+            this.label10.Location = new System.Drawing.Point(135, 371);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(27, 13);
             this.label10.TabIndex = 27;
@@ -414,7 +461,7 @@
             // 
             // txtJitter
             // 
-            this.txtJitter.Location = new System.Drawing.Point(66, 397);
+            this.txtJitter.Location = new System.Drawing.Point(66, 342);
             this.txtJitter.Name = "txtJitter";
             this.txtJitter.Size = new System.Drawing.Size(61, 20);
             this.txtJitter.TabIndex = 26;
@@ -423,7 +470,7 @@
             // 
             // txtSpeed
             // 
-            this.txtSpeed.Location = new System.Drawing.Point(67, 423);
+            this.txtSpeed.Location = new System.Drawing.Point(67, 368);
             this.txtSpeed.Name = "txtSpeed";
             this.txtSpeed.Size = new System.Drawing.Size(61, 20);
             this.txtSpeed.TabIndex = 26;
@@ -433,65 +480,18 @@
             // txtAdbResult
             // 
             this.txtAdbResult.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.txtAdbResult.Location = new System.Drawing.Point(0, 755);
+            this.txtAdbResult.Location = new System.Drawing.Point(0, 639);
             this.txtAdbResult.Multiline = true;
             this.txtAdbResult.Name = "txtAdbResult";
             this.txtAdbResult.ReadOnly = true;
             this.txtAdbResult.Size = new System.Drawing.Size(816, 57);
             this.txtAdbResult.TabIndex = 8;
             // 
-            // cmbRoutes
-            // 
-            this.cmbRoutes.FormattingEnabled = true;
-            this.cmbRoutes.Location = new System.Drawing.Point(55, 619);
-            this.cmbRoutes.Name = "cmbRoutes";
-            this.cmbRoutes.Size = new System.Drawing.Size(121, 21);
-            this.cmbRoutes.TabIndex = 35;
-            this.cmbRoutes.SelectedIndexChanged += new System.EventHandler(this.cmbRoutes_SelectedIndexChanged);
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(12, 622);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(39, 13);
-            this.label16.TabIndex = 36;
-            this.label16.Text = "Route:";
-            // 
-            // lstSavedRoute
-            // 
-            this.lstSavedRoute.FormattingEnabled = true;
-            this.lstSavedRoute.Location = new System.Drawing.Point(20, 653);
-            this.lstSavedRoute.Name = "lstSavedRoute";
-            this.lstSavedRoute.Size = new System.Drawing.Size(157, 121);
-            this.lstSavedRoute.TabIndex = 37;
-            this.lstSavedRoute.SelectedIndexChanged += new System.EventHandler(this.lstSavedRoute_SelectedIndexChanged);
-            // 
-            // btnRoute
-            // 
-            this.btnRoute.Location = new System.Drawing.Point(102, 780);
-            this.btnRoute.Name = "btnRoute";
-            this.btnRoute.Size = new System.Drawing.Size(75, 23);
-            this.btnRoute.TabIndex = 38;
-            this.btnRoute.Text = "Start Route";
-            this.btnRoute.UseVisualStyleBackColor = true;
-            this.btnRoute.Click += new System.EventHandler(this.btnRoute_Click);
-            // 
-            // btnStopRoute
-            // 
-            this.btnStopRoute.Location = new System.Drawing.Point(21, 780);
-            this.btnStopRoute.Name = "btnStopRoute";
-            this.btnStopRoute.Size = new System.Drawing.Size(75, 23);
-            this.btnStopRoute.TabIndex = 39;
-            this.btnStopRoute.Text = "Stop Route";
-            this.btnStopRoute.UseVisualStyleBackColor = true;
-            this.btnStopRoute.Click += new System.EventHandler(this.btnStopRoute_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1016, 812);
+            this.ClientSize = new System.Drawing.Size(1016, 696);
             this.Controls.Add(this.txtAdbResult);
             this.Controls.Add(this.map);
             this.Controls.Add(this.groupBox1);
